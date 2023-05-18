@@ -3,12 +3,74 @@
  */
 package com.example;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
 public class App {
+
+    private static RoverField roverField;
+
     public String getGreeting() {
         return "Hello World!";
     }
 
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+
+        if (args.length != 2) {
+            throw new IllegalArgumentException();
+        }
+        int m;
+        int n;
+        try {
+
+            m = Integer.parseInt(args[0]);
+            n = Integer.parseInt(args[1]);
+        } catch (Exception exception) {
+            throw new IllegalArgumentException();
+        }
+
+        roverField = new RoverField(new Point(m, n));
+
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            try {
+
+                System.out.println("Enter coordinates: ");
+                String[] coordinates = scanner.nextLine().split(" ");
+                if (coordinates.length != 3) {
+                    throw new IllegalArgumentException();
+                }
+                //point
+                int x = Integer.parseInt(coordinates[0]);
+                int y = Integer.parseInt(coordinates[1]);
+                Direction direction = Direction.parse(coordinates[2]);
+
+                Point point = new Point(x, y);
+                Rover rover = new Rover(point,direction);
+                roverField.placeRover(rover);
+
+                System.out.println("Enter command: ");
+                String inputCommand = scanner.nextLine();
+
+                List<Command> commands = new ArrayList<>();
+
+                for (int i = 0; i < inputCommand.length(); i++) {
+                    Command command = Command.parse(String.valueOf(inputCommand.charAt(i)));
+                    commands.add(command);
+                }
+
+                for(Command command:commands){
+                    rover.command(command, roverField);
+                }
+
+                System.out.println(String.format("%d %d %s", rover.getPoint().getX(), rover.getPoint().getY(), rover.getDirection()));
+
+            } catch (Exception e) {
+                System.err.println("Error: " + e.getMessage());
+            }
+        }
+
     }
+
 }
